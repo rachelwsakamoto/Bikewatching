@@ -13,7 +13,11 @@ const map = new mapboxgl.Map({
   maxZoom: 18
 });
 
-
+function getCoords(station) {
+  const point = new mapboxgl.LngLat(+station.lon, +station.lat);
+  const { x, y } = map.project(point);
+  return { cx: x, cy: y };
+}
 
 map.on('load', async () => {
   map.addSource('boston_route', {
@@ -25,7 +29,7 @@ map.on('load', async () => {
     type: 'line',
     source: 'boston_route',
     paint: {
-      'line-color': '#057532ff',
+      'line-color': '#057532',
       'line-width': 5,
       'line-opacity': 0.6}
 
@@ -41,7 +45,7 @@ map.on('load', async () => {
     type: 'line',
     source: 'cambridge_route',
     paint: {
-      'line-color': '#d4009bff',
+      'line-color': '#d4009b',
       'line-width': 5,
       'line-opacity': 0.6}
 
@@ -194,8 +198,3 @@ function filterTripsByTime(trips, timeFilter) {
   });
 }
 
-function getCoords(station) {
-  const point = new mapboxgl.LngLat(+station.lon, +station.lat);
-  const { x, y } = map.project(point);
-  return { cx: x, cy: y };
-}
