@@ -55,7 +55,7 @@ map.on('load', async () => {
 
   });
 
-  let svg = d3.select("#overlay"); // Select the separate SVG
+  let svg = d3.select("#overlay");
     if (svg.empty()) {
     svg = d3.select("#map-container")
         .append("svg")
