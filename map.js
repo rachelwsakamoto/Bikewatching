@@ -14,6 +14,8 @@ const map = new mapboxgl.Map({
   maxZoom: 18, // Maximum allowed zoom
 });
 
+let timeFilter = -1
+
 map.on('load', async () => {
     // Boston bike lanes
     map.addSource('boston_route', {
@@ -123,17 +125,18 @@ function formatTime(minutes) {
 }
 
 function updateTimeDisplay() {
-  let timeFilter = Number(timeSlider.value);
 
-  if (timeFilter === -1) {
-    selectedTime.textContent = '';
-    anyTimeLabel.style.display = 'block';
-  } else {
-    selectedTime.textContent = formatTime(timeFilter);
-    anyTimeLabel.style.display = 'none';
-  }
+    timeFilter = Number(timeSlider.value);
 
-  updateScatterPlot(timeFilter);
+    if (timeFilter === -1) {
+        selectedTime.textContent = "";
+        anyTimeLabel.style.display = "block";
+    } else {
+        selectedTime.textContent = formatTime(timeFilter);
+        anyTimeLabel.style.display = "none";
+      }
+
+      updateScatterPlot(timeFilter);
 }
 
 function computeStationTraffic(stations, trips) {
