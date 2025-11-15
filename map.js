@@ -176,19 +176,12 @@ function computeStationTraffic(stations, trips) {
     return station;
   });
 }
-function filterTripsByTime(trips, timeFilter) {
-  if (timeFilter === -1) return trips;
-
 function minutesSinceMidnight(date) {
   return date.getHours() * 60 + date.getMinutes();
 }
 
-function getCoords(station) {
-  const point = new mapboxgl.LngLat(+station.lon, +station.lat);
-  const { x, y } = map.project(point);
-  return { cx: x, cy: y };
-}
-
+function filterTripsByTime(trips, timeFilter) {
+  if (timeFilter === -1) return trips;
 
   return trips.filter(trip => {
     const start = minutesSinceMidnight(trip.started_at);
@@ -201,3 +194,8 @@ function getCoords(station) {
   });
 }
 
+function getCoords(station) {
+  const point = new mapboxgl.LngLat(+station.lon, +station.lat);
+  const { x, y } = map.project(point);
+  return { cx: x, cy: y };
+}
