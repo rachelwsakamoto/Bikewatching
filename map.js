@@ -82,6 +82,11 @@ map.on('load', async () => {
         .attr('cy', (d) => getCoords(d).cy); // Set the y-position using projected coordinates
     }
     updatePositions();
+    
+    map.on('move', updatePositions); // Update during map movement
+    map.on('zoom', updatePositions); // Update during zooming
+    map.on('resize', updatePositions); // Update on window resize
+    map.on('moveend', updatePositions); // Final adjustment after movement ends
 });
 
 function getCoords(station) {
