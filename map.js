@@ -6,12 +6,12 @@ mapboxgl.accessToken = 'pk.eyJ1IjoicmFjaGVsd3Nha2Ftb3RvIiwiYSI6ImNtaHpsdXBnazByZ
 
 // Initialize the map
 const map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/mapbox/streets-v12',
-  center: [-71.09415, 42.36027],
-  zoom: 12,
-  minZoom: 5,
-  maxZoom: 18,
+  container: 'map', // ID of the div where the map will render
+  style: 'mapbox://styles/mapbox/streets-v12', // Map style
+  center: [-71.09415, 42.36027], // [longitude, latitude]
+  zoom: 12, // Initial zoom level
+  minZoom: 5, // Minimum allowed zoom
+  maxZoom: 18, // Maximum allowed zoom
 });
 
 map.on('load', async () => {
@@ -49,27 +49,16 @@ map.on('load', async () => {
         },
     });
 
-    // ============ ENSURE SVG EXISTS ============
-    let svg = d3.select("#map").select("svg");
-    if (svg.empty()) {
-      svg = d3.select("#map")
-        .append("svg")
-        .style("position", "absolute")
-        .style("top", 0)
-        .style("left", 0)
-        .style("width", "100%")
-        .style("height", "100%")
-        .style("pointer-events", "none")
-        .style("z-index", 1);
-    }
-
     let jsonData;
     try {
         const jsonurl = "https://dsc106.com/labs/lab07/data/bluebikes-stations.json";
+
+        // Await JSON fetch
         jsonData = await d3.json(jsonurl);
-        console.log('Loaded JSON Data:', jsonData);
+
+        console.log('Loaded JSON Data:', jsonData); // Log to verify structure
     } catch (error) {
-        console.error('Error loading JSON:', error);
+        console.error('Error loading JSON:', error); // Handle errors
     }
 
     let stations = jsonData.data.stations;
@@ -78,10 +67,13 @@ map.on('load', async () => {
     let trips;
     try {
         const csvurl = "https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv";
+
+        // Await CSV fetch
         trips = await d3.csv(csvurl);
-        console.log('Loaded CSV Data:', trips);
+
+        console.log('Loaded CSV Data:', trips); // Log to verify structure
     } catch (error) {
-        console.error('Error loading CSV:', error);
+        console.error('Error loading CSV:', error); // Handle errors
     }
 
     const departures = d3.rollup(
@@ -110,12 +102,13 @@ map.on('load', async () => {
         .domain([0, d3.max(stations, (d) => d.totalTraffic)])
         .range([0, 25]);
 
+    const svg = d3.select('#map').select('svg');
     const circles = svg
         .selectAll('circle')
         .data(stations)
         .enter()
         .append('circle')
-        .attr('r', d => radiusScale(d.totalTraffic))
+        .attr('r', d => radiusScale(d.totalTraffic)) // Scaled radius based on traffic
         .attr('fill', 'steelblue')
         .attr('stroke', 'white')
         .attr('stroke-width', 1)
@@ -126,6 +119,7 @@ map.on('load', async () => {
           .text(`${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`);
       });
 
+
     function updatePositions() {
         circles
             .attr('cx', (d) => getCoords(d).cx)
@@ -133,14 +127,14 @@ map.on('load', async () => {
     }
     updatePositions();
 
-    map.on('move', updatePositions);
-    map.on('zoom', updatePositions);
-    map.on('resize', updatePositions);
-    map.on('moveend', updatePositions);
+    map.on('move', updatePositions); // Update during map movement
+    map.on('zoom', updatePositions); // Update during zooming
+    map.on('resize', updatePositions); // Update on window resize
+    map.on('moveend', updatePositions); // Final adjustment after movement ends
 });
 
 function getCoords(station) {
-    const point = new mapboxgl.LngLat(+station.lon, +station.lat);
-    const { x, y } = map.project(point);
-    return { cx: x, cy: y };
+    const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
+    const { x, y } = map.project(point); // Project to pixel coordinates
+    return { cx: x, cy: y }; // Return as object for use in SVG attributes
 }
