@@ -26,7 +26,7 @@ map.on('load', async () => {
         type: 'line',
         source: 'boston_route',
         paint: {
-            'line-color': 'green',
+            'line-color': '#3c50e6ff',
             'line-width': 3,
             'line-opacity': 0.4,
         },
@@ -43,7 +43,7 @@ map.on('load', async () => {
         type: 'line',
         source: 'cambridge_route',
         paint: {
-            'line-color': 'red',
+            'line-color': '#e65577ff',
             'line-width': 3,
             'line-opacity': 0.4,
         },
