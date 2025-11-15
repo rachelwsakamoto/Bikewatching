@@ -75,8 +75,8 @@ header#controls em {
 }
 
 :root {
-  --color-departures: steelblue;
-  --color-arrivals: darkorange;
+  --color-departures: rgb(197, 13, 40);
+  --color-arrivals: rgb(7, 166, 68);
 }
 
 #overlay circle,
