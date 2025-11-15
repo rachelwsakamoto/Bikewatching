@@ -13,17 +13,15 @@ const map = new mapboxgl.Map({
   maxZoom: 18
 });
 
+// Define getCoords function globally
 function getCoords(station) {
   const point = new mapboxgl.LngLat(+station.lon, +station.lat);
   const { x, y } = map.project(point);
-  
-  const mapContainer = map.getContainer();
-  const rect = mapContainer.getBoundingClientRect();
-  
-  return { cx: x, cy: y};
+  return { cx: x, cy: y };
 }
 
 map.on('load', async () => {
+  // Your existing bike lane code...
   map.addSource('boston_route', {
     type:'geojson',
     data:'https://bostonopendata-boston.opendata.arcgis.com/datasets/boston::existing-bike-network-2022.geojson'
@@ -36,7 +34,6 @@ map.on('load', async () => {
       'line-color': '#057532',
       'line-width': 5,
       'line-opacity': 0.6}
-
   });
 
   map.addSource('cambridge_route', {
@@ -52,22 +49,10 @@ map.on('load', async () => {
       'line-color': '#d4009b',
       'line-width': 5,
       'line-opacity': 0.6}
-
   });
 
-  let svg = d3.select("#overlay");
-    if (svg.empty()) {
-    svg = d3.select("#map-container")
-        .append("svg")
-        .attr("id", "overlay")
-        .style("position", "absolute")
-        .style("top", 0)
-        .style("left", 0)
-        .style("width", "100%")
-        .style("height", "100%")
-        .style("pointer-events", "none")
-        .style("z-index", 1);
-    }
+  // Select the SVG element inside the map container
+  const svg = d3.select('#map').select('svg');
 
   try {
     const jsonData = await d3.json('https://dsc106.com/labs/lab07/data/bluebikes-stations.json');
@@ -78,7 +63,8 @@ map.on('load', async () => {
       (trip) => {
         trip.started_at = new Date(trip.started_at);
         trip.ended_at = new Date(trip.ended_at);
-        return trip;}
+        return trip;
+      }
     );
     console.log("Trips loaded:", trips.length);
 
@@ -92,6 +78,7 @@ map.on('load', async () => {
       .domain([0, d3.max(stations, d => d.totalTraffic)])
       .range([0, 25]);
 
+    // Create circles with initial positions
     let circles = svg
       .selectAll("circle")
       .data(stations, d => d.short_name)
@@ -99,29 +86,33 @@ map.on('load', async () => {
       .append("circle")
       .attr("r", d => radiusScale(d.totalTraffic))
       .attr("fill", "steelblue")
-      .style("--departure-ratio",
-        d => stationFlow(d.departures / d.totalTraffic))
+      .style("--departure-ratio", d => stationFlow(d.departures / d.totalTraffic))
       .attr("stroke", "white")
       .attr("stroke-width", 1)
+      .attr("opacity", 0.8)
       .each(function (d) {
         d3.select(this)
           .append("title")
           .text(`${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`);
       });
 
-      
+    // Function to update circle positions
     function updatePositions() {
       circles
         .attr("cx", d => getCoords(d).cx)
         .attr("cy", d => getCoords(d).cy);
     }
+
+    // Initial position update when map loads
     updatePositions();
+
+    // Reposition markers on map interactions
     map.on("move", updatePositions);
     map.on("zoom", updatePositions);
     map.on("resize", updatePositions);
     map.on("moveend", updatePositions);
 
-    
+    // Your existing time slider code...
     const timeSlider = document.getElementById('time-slider');
     const selectedTime = document.getElementById('selected-time');
     const anyTimeLabel = document.getElementById('any-time');
@@ -130,6 +121,7 @@ map.on('load', async () => {
       const date = new Date(0, 0, 0, 0, minutes);
       return date.toLocaleString('en-US', { timeStyle: 'short' });
     }
+
     let timeFilter = -1;
     function updateTimeDisplay() {
       timeFilter = Number(timeSlider.value);
@@ -145,7 +137,6 @@ map.on('load', async () => {
       updateScatterPlot(timeFilter);
     }
 
-    
     function updateScatterPlot(timeFilter) {
       const filteredTrips = filterTripsByTime(trips, timeFilter);
       const filteredStations = computeStationTraffic(baseStations, filteredTrips);
@@ -157,17 +148,14 @@ map.on('load', async () => {
       }
 
       circles
-      .data(filteredStations, d => d.short_name)
-      .join("circle")
-      .attr("r", d => radiusScale(d.totalTraffic))
-      .style("--departure-ratio", d =>
-        stationFlow(d.departures / d.totalTraffic)
-      );
+        .data(filteredStations, d => d.short_name)
+        .join("circle")
+        .attr("r", d => radiusScale(d.totalTraffic))
+        .style("--departure-ratio", d => stationFlow(d.departures / d.totalTraffic));
 
-      updatePositions();
+      updatePositions(); // Update positions after data change
     }
 
-    
     timeSlider.addEventListener("input", updateTimeDisplay);
     updateTimeDisplay();
 
@@ -176,7 +164,7 @@ map.on('load', async () => {
   }
 });
 
-
+// Your existing helper functions...
 function computeStationTraffic(stations, trips) {
   const departures = d3.rollup(trips, v => v.length, d => d.start_station_id);
   const arrivals = d3.rollup(trips, v => v.length, d => d.end_station_id);
@@ -189,6 +177,7 @@ function computeStationTraffic(stations, trips) {
     return station;
   });
 }
+
 function minutesSinceMidnight(date) {
   return date.getHours() * 60 + date.getMinutes();
 }
@@ -206,4 +195,3 @@ function filterTripsByTime(trips, timeFilter) {
     );
   });
 }
-
