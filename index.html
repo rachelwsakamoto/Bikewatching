@@ -13,19 +13,16 @@
   <body>
     <header id="controls">
         <h1>🚴‍♀️ Bikewatching</h1>
-    <label for="time-slider">
-        Filter by time:
-    <input type="range" id="time-slider" min="-1" max="1440" value="-1">
-    <time id="selected-time"></time>
-    <em id="any-time">(all time)</em>
-    </label>
-</header>
+        <label for="time-slider">
+            Filter by time:
+            <input type="range" id="time-slider" min="-1" max="1440" value="-1">
+            <time id="selected-time"></time>
+            <em id="any-time">(all time)</em>
+        </label>
+    </header>
     <div id="map-container" style="position: relative; width: 100%; flex: 1;">
-      <!-- EMPTY MAP CONTAINER -->
       <div id="map"></div>
-      
-      <!-- SEPARATE OVERLAY FOR CIRCLES -->
-      <div id="overlay"></div>
+      <svg id="overlay"></svg>
     </div>
     <div class="legend">
         <div style="--departure-ratio: 1">More departures</div>
