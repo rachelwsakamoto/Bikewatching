@@ -109,7 +109,7 @@ map.on('load', async () => {
     const svg = d3.select('#map').select('svg');
     const circles = svg
         .selectAll('circle')
-        .data(stations)
+        .data(stations, (d) => d.short_name)
         .enter()
         .append('circle')
         .attr('r', d => radiusScale(d.totalTraffic)) // Scaled radius based on traffic
@@ -147,7 +147,7 @@ function formatTime(minutes) {
 }
 
 function updateTimeDisplay() {
-  timeFilter = Number(timeSlider.value); // Get slider value
+  let timeFilter = Number(timeSlider.value); // Get slider value
 
   if (timeFilter === -1) {
     selectedTime.textContent = ''; // Clear time display
@@ -157,7 +157,7 @@ function updateTimeDisplay() {
     anyTimeLabel.style.display = 'none'; // Hide "(any time)"
   }
 
-  // Trigger filtering logic which will be implemented in the next step
+  // Call updateScatterPlot to reflect the changes on the map
   updateScatterPlot(timeFilter);
 }
 
@@ -204,7 +204,7 @@ function updateScatterPlot(timeFilter) {
 
   // Update the scatterplot by adjusting the radius of circles
   circles
-    .data(filteredStations)
+    .data(filteredStations, (d) => d.short_name)
     .join('circle') // Ensure the data is bound correctly
     .attr('r', (d) => radiusScale(d.totalTraffic)); // Update circle sizes
     updatePositions();
