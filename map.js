@@ -66,6 +66,7 @@ map.on('load', async () => {
 
     const svg = d3.select('#map').select('svg');
     const circles = svg
+
         .selectAll('circle')
         .data(stations)
         .enter()
@@ -75,6 +76,12 @@ map.on('load', async () => {
         .attr('stroke', 'white') // Circle border color
         .attr('stroke-width', 1) // Circle border thickness
         .attr('opacity', 0.8); // Circle opacity
+    function updatePositions() {
+    circles
+        .attr('cx', (d) => getCoords(d).cx) // Set the x-position using projected coordinates
+        .attr('cy', (d) => getCoords(d).cy); // Set the y-position using projected coordinates
+
+    }
 });
 
 function getCoords(station) {
