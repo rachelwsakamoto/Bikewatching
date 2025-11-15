@@ -175,6 +175,41 @@ function computeStationTraffic(stations, trips) {
   });
 }
 
+function minutesSinceMidnight(date) {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+function filterTripsbyTime(trips, timeFilter) {
+  return timeFilter === -1
+    ? trips // If no filter is applied (-1), return all trips
+    : trips.filter((trip) => {
+        // Convert trip start and end times to minutes since midnight
+        const startedMinutes = minutesSinceMidnight(trip.started_at);
+        const endedMinutes = minutesSinceMidnight(trip.ended_at);
+
+        // Include trips that started or ended within 60 minutes of the selected time
+        return (
+          Math.abs(startedMinutes - timeFilter) <= 60 ||
+          Math.abs(endedMinutes - timeFilter) <= 60
+        );
+      });
+}
+
+function updateScatterPlot(timeFilter) {
+  // Get only the trips that match the selected time filter
+  const filteredTrips = filterTripsbyTime(trips, timeFilter);
+
+  // Recompute station traffic based on the filtered trips
+  const filteredStations = computeStationTraffic(stations, filteredTrips);
+
+  // Update the scatterplot by adjusting the radius of circles
+  circles
+    .data(filteredStations)
+    .join('circle') // Ensure the data is bound correctly
+    .attr('r', (d) => radiusScale(d.totalTraffic)); // Update circle sizes
+    updatePositions();
+}
+
 function getCoords(station) {
     const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
     const { x, y } = map.project(point); // Project to pixel coordinates
