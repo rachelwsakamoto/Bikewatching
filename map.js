@@ -61,20 +61,24 @@ map.on('load', async () => {
         console.error('Error loading JSON:', error); // Handle errors
     }
 
-    let stations = jsonData.data.stations;
+    const stations = computeStationTraffic(jsonData.data.stations, trips);
+
     console.log('Stations Array:', stations);
 
-    let trips;
     try {
-        const csvurl = "https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv";
+        const jsonData = await d3.json('https://dsc106.com/labs/lab07/data/bluebikes-stations.json');
+        const baseStations = jsonData.data.stations;
 
-        // Await CSV fetch
-        trips = await d3.csv(csvurl);
+        let trips = await d3.csv(
+        'https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv',
+        (trip) => {
+            trip.started_at = new Date(trip.started_at);
+            trip.ended_at = new Date(trip.ended_at);
+            return trip;
+        }
+        );
 
-        console.log('Loaded CSV Data:', trips); // Log to verify structure
-    } catch (error) {
-        console.error('Error loading CSV:', error); // Handle errors
-    }
+    console.log("Trips loaded:", trips.length);
 
     const departures = d3.rollup(
         trips,
@@ -132,6 +136,44 @@ map.on('load', async () => {
     map.on('resize', updatePositions); // Update on window resize
     map.on('moveend', updatePositions); // Final adjustment after movement ends
 });
+
+const timeSlider = document.getElementById('#time-slider');
+const selectedTime = document.getElementById('#selected-time');
+const anyTimeLabel = document.getElementById('#any-time');
+
+function formatTime(minutes) {
+  const date = new Date(0, 0, 0, 0, minutes); // Set hours & minutes
+  return date.toLocaleString('en-US', { timeStyle: 'short' }); // Format as HH:MM AM/PM
+}
+
+function updateTimeDisplay() {
+  timeFilter = Number(timeSlider.value); // Get slider value
+
+  if (timeFilter === -1) {
+    selectedTime.textContent = ''; // Clear time display
+    anyTimeLabel.style.display = 'block'; // Show "(any time)"
+  } else {
+    selectedTime.textContent = formatTime(timeFilter); // Display formatted time
+    anyTimeLabel.style.display = 'none'; // Hide "(any time)"
+  }
+
+  // Trigger filtering logic which will be implemented in the next step
+  updateScatterPlot(timeFilter);
+}
+
+
+function computeStationTraffic(stations, trips) {
+  const departures = d3.rollup(trips, v => v.length, d => d.start_station_id);
+  const arrivals = d3.rollup(trips, v => v.length, d => d.end_station_id);
+
+  return stations.map(station => {
+    const id = station.short_name;
+    station.arrivals = arrivals.get(id) ?? 0;
+    station.departures = departures.get(id) ?? 0;
+    station.totalTraffic = station.arrivals + station.departures;
+    return station;
+  });
+}
 
 function getCoords(station) {
     const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
