@@ -78,18 +78,16 @@ map.on('load', async () => {
       .domain([0, d3.max(stations, d => d.totalTraffic)])
       .range([0, 25]);
 
-    // Create circles with initial positions
     let circles = svg
-    .selectAll("circle")
-    .data(stations, (d) => d.id)
-    .enter()
-    .append("circle")
-    .attr("stroke", "white")
-    .attr("stroke-width", 0.5)
-    .attr("fill-opacity", 0.85)
-    .style("pointer-events", "auto");
+        .selectAll("circle")
+        .data(stations, (d) => d.id)
+        .enter()
+        .append("circle")
+        .attr("stroke", "white")
+        .attr("stroke-width", 0.5)
+        .attr("fill-opacity", 0.85)
+        .style("pointer-events", "auto");
 
-  // Update circle positions when map moves
   function updatePositions() {
     circles
       .attr("cx", (d) => getCoords(d).cx)
