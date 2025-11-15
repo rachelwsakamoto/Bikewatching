@@ -20,7 +20,12 @@
     <em id="any-time">(all time)</em>
     </label>
 </header>
-    <div id="map">
+    <div id="map-container" style="position: relative; width: 100%; flex: 1;">
+      <!-- EMPTY MAP CONTAINER -->
+      <div id="map"></div>
+      
+      <!-- SEPARATE OVERLAY FOR CIRCLES -->
+      <div id="overlay"></div>
     </div>
     <div class="legend">
         <div style="--departure-ratio: 1">More departures</div>
