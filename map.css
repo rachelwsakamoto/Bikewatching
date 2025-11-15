@@ -19,7 +19,6 @@ body {
   border-radius: 8px;
 }
 
-/* Change this to target the overlay, not map svg */
 #overlay {
   position: absolute;
   top: 0;
@@ -38,7 +37,6 @@ body {
   pointer-events: auto;
 }
 
-/* Keep the rest of your CSS the same */
 header#controls {
   display: flex;
   gap: 1em;
@@ -83,11 +81,11 @@ header#controls em {
     var(--color-departures) calc(100% * var(--departure-ratio)),
     var(--color-arrivals)
   );
-  fill: var(--color); /* Use fill for SVG, not background-color */
+  fill: var(--color);
 }
 
 .legend > div {
-  background-color: var(--color); /* Keep background-color for legend divs */
+  background-color: var(--color);
 }
 
 .legend {
