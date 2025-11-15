@@ -16,7 +16,11 @@ const map = new mapboxgl.Map({
 function getCoords(station) {
   const point = new mapboxgl.LngLat(+station.lon, +station.lat);
   const { x, y } = map.project(point);
-  return { cx: x, cy: y };
+  
+  const mapContainer = map.getContainer();
+  const rect = mapContainer.getBoundingClientRect();
+  
+  return { cx: x, cy: y};
 }
 
 map.on('load', async () => {
@@ -53,7 +57,7 @@ map.on('load', async () => {
 
   let svg = d3.select("#overlay"); // Select the separate SVG
     if (svg.empty()) {
-    svg = d3.select("body")
+    svg = d3.select("#map-container")
         .append("svg")
         .attr("id", "overlay")
         .style("position", "absolute")
