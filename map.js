@@ -51,14 +51,19 @@ map.on('load', async () => {
 
   });
 
-  let svg = d3.select("#map").select("svg");
-  if (svg.empty()) {
-    svg = d3.select("#map")
-      .append("svg")
-      .style("position", "absolute")
-      .style("top", 0)
-      .style("left", 0);
-  }
+  let svg = d3.select("#overlay"); // Select the separate SVG
+    if (svg.empty()) {
+    svg = d3.select("body")
+        .append("svg")
+        .attr("id", "overlay")
+        .style("position", "absolute")
+        .style("top", 0)
+        .style("left", 0)
+        .style("width", "100%")
+        .style("height", "100%")
+        .style("pointer-events", "none")
+        .style("z-index", 1);
+    }
 
   try {
     const jsonData = await d3.json('https://dsc106.com/labs/lab07/data/bluebikes-stations.json');
