@@ -60,4 +60,25 @@ map.on('load', async () => {
   } catch (error) {
     console.error('Error loading JSON:', error); // Handle errors
   }
+
+    let stations = jsonData.data.stations;
+    console.log('Stations Array:', stations);
+
+    const svg = d3.select('#map').select('svg');
+    const circles = svg
+        .selectAll('circle')
+        .data(stations)
+        .enter()
+        .append('circle')
+        .attr('r', 5) // Radius of the circle
+        .attr('fill', 'steelblue') // Circle fill color
+        .attr('stroke', 'white') // Circle border color
+        .attr('stroke-width', 1) // Circle border thickness
+        .attr('opacity', 0.8); // Circle opacity
 });
+
+function getCoords(station) {
+  const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
+  const { x, y } = map.project(point); // Project to pixel coordinates
+  return { cx: x, cy: y }; // Return as object for use in SVG attributes
+}
