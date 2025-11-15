@@ -80,28 +80,22 @@ map.on('load', async () => {
 
     // Create circles with initial positions
     let circles = svg
-      .selectAll("circle")
-      .data(stations, d => d.short_name)
-      .enter()
-      .append("circle")
-      .attr("r", d => radiusScale(d.totalTraffic))
-      .attr("fill", "steelblue")
-      .style("--departure-ratio", d => stationFlow(d.departures / d.totalTraffic))
-      .attr("stroke", "white")
-      .attr("stroke-width", 1)
-      .attr("opacity", 0.8)
-      .each(function (d) {
-        d3.select(this)
-          .append("title")
-          .text(`${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`);
-      });
+    .selectAll("circle")
+    .data(stations, (d) => d.id)
+    .enter()
+    .append("circle")
+    .attr("stroke", "white")
+    .attr("stroke-width", 0.5)
+    .attr("fill-opacity", 0.85)
+    .style("pointer-events", "auto");
 
-    // Function to update circle positions
-    function updatePositions() {
-      circles
-        .attr("cx", d => getCoords(d).cx)
-        .attr("cy", d => getCoords(d).cy);
-    }
+  // Update circle positions when map moves
+  function updatePositions() {
+    circles
+      .attr("cx", (d) => getCoords(d).cx)
+      .attr("cy", (d) => getCoords(d).cy);
+  }
+
 
     // Initial position update when map loads
     updatePositions();
