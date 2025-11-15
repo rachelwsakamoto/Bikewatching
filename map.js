@@ -80,8 +80,8 @@ map.on('load', async () => {
     circles
         .attr('cx', (d) => getCoords(d).cx) // Set the x-position using projected coordinates
         .attr('cy', (d) => getCoords(d).cy); // Set the y-position using projected coordinates
-
     }
+    updatePositions();
 });
 
 function getCoords(station) {
