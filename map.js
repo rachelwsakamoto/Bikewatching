@@ -13,16 +13,13 @@ const map = new mapboxgl.Map({
   maxZoom: 18
 });
 
-// Global variables
-let trips;
-let stations;
-let circles;
-let radiusScale;
+
+
 let stationFlow;
 let departuresByMinute = Array.from({ length: 1440 }, () => []);
 let arrivalsByMinute = Array.from({ length: 1440 }, () => []);
+let stations;
 
-// Helper functions
 function getCoords(station) {
   const point = new mapboxgl.LngLat(+station.lon, +station.lat);
   const { x, y } = map.project(point);
@@ -76,6 +73,10 @@ function computeStationTraffic(stations, timeFilter = -1) {
     return station;
   });
 }
+let trips;
+let circles;
+let radiusScale;
+
 
 map.on('load', async () => {
   // Add bike lanes
@@ -109,7 +110,6 @@ map.on('load', async () => {
     }
   });
 
-  // Setup overlay
   let svg = d3.select("#overlay");
   if (svg.empty()) {
     svg = d3.select("#map-container")
@@ -125,11 +125,9 @@ map.on('load', async () => {
   }
 
   try {
-    // Load stations
     const jsonData = await d3.json('https://dsc106.com/labs/lab07/data/bluebikes-stations.json');
     const baseStations = jsonData.data.stations;
 
-    // Load and parse trips
     trips = await d3.csv(
       'https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv',
       (trip) => {
@@ -147,7 +145,6 @@ map.on('load', async () => {
     );
     console.log("Trips loaded:", trips.length);
 
-    // Compute initial station traffic
     stations = computeStationTraffic(baseStations);
     console.log('Stations with traffic:', stations);
 
@@ -160,7 +157,6 @@ map.on('load', async () => {
       .domain([0, d3.max(stations, d => d.totalTraffic)])
       .range([0, 25]);
 
-    // Create circles
     circles = svg
       .selectAll("circle")
       .data(stations, d => d.short_name)
@@ -178,7 +174,6 @@ map.on('load', async () => {
           .text(`${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`);
       });
 
-    // Position circles
     function updatePositions() {
       circles
         .attr("cx", d => getCoords(d).cx)
@@ -186,13 +181,11 @@ map.on('load', async () => {
     }
     updatePositions();
 
-    // Update on map interactions
     map.on("move", updatePositions);
     map.on("zoom", updatePositions);
     map.on("resize", updatePositions);
     map.on("moveend", updatePositions);
 
-    // Time slider setup
     const timeSlider = document.getElementById('time-slider');
     const selectedTime = document.getElementById('selected-time');
     const anyTimeLabel = document.getElementById('any-time');
@@ -214,7 +207,6 @@ map.on('load', async () => {
     function updateScatterPlot(timeFilter) {
       const filteredStations = computeStationTraffic(baseStations, timeFilter);
 
-      // Adjust circle size range based on filtering
       timeFilter === -1 ? radiusScale.range([0, 25]) : radiusScale.range([3, 50]);
 
       circles
